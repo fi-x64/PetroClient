@@ -1,0 +1,16 @@
+.wrapper {
+    display: flex;
+    padding: 8px 12px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    &:hover {
+        background-color: #f2f7f9;
+    }
+}
+
+
+.text {
+    line-height: 1.5;
+}

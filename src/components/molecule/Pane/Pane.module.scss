@@ -1,0 +1,55 @@
+.wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 408px;
+    background-color: var(--white);
+    z-index: 1000;
+    overflow-y: auto;
+    overflow-x: hidden;
+    translate: -408px 0;
+    transition: 300ms ease-in-out;
+
+    &.active {
+        translate: 0 0;
+    }
+}
+
+.group {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.name {
+    font-size: 22px;
+}
+
+.text {
+    color: var(--text);
+    margin-top: 10px;
+}
+
+.icon {
+    font-size: 1.5rem;
+    color: var(--primary-1);
+    min-width: 32px;
+}
+
+.toggle {
+    position: absolute;
+    background-color: red;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 2px;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    top: 50%;
+    right: 0;
+    transform: translateX(50%);
+    z-index: 1001;
+    background-color: #dedede;
+    cursor: pointer;
+}
