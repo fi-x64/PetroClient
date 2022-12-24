@@ -2,9 +2,17 @@ import React, { useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import Pane from '../../components/molecule/Pane/Pane'
 import TogglePane from './components/TogglePane'
+import styles from './Map.module.scss'
+import classNames from 'classnames/bind'
+import { Button } from 'antd'
+import AddPane from '../../components/molecule/Pane/AddPane'
+
+const cl = classNames.bind(styles)
 
 function Map() {
   const [showPane, togglePane] = useState(false)
+  const [showAddPane, toggleAddPane] = useState(false)
+
   const [markers, setMarkers] = useState([
     [10, 106.4],
     [11, 105.6],
@@ -76,6 +84,11 @@ function Map() {
           animateRef={animateRef}
           onGoToPosition={(latlng) => addTemporaryMaker(latlng)}
         ></Pane>
+        <Button className={cl('add-btn')} onClick={() => toggleAddPane(true)}>Thêm mới</Button>
+        <AddPane
+          active={showAddPane}
+          onClose={() => toggleAddPane(false)}
+        />
       </MapContainer>
     </div>
   )

@@ -4,7 +4,7 @@ import { useMap } from 'react-leaflet'
 import classNames from 'classnames/bind'
 import styles from './Pane.module.scss'
 import { CaretLeftOutlined } from '@ant-design/icons'
-import { Image, Input } from 'antd'
+import { Drawer, Image, Input } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons'
 import InfoItem from '../../atom/InfoItem/InfoItem'
@@ -14,9 +14,9 @@ function Pane({ data, active, onClose, onGoToPosition, animateRef }) {
   const map = useMap()
   const [latlng, setLatlng] = useState({})
 
-  const handleClick = (e) => {}
+  const handleClick = (e) => { }
   return (
-    <div onClick={handleClick} className={cl('wrapper', { active: active })}>
+    <Drawer title="Thông tin cửa hàng" placement="left" onClose={onClose} open={active} mask={false}>
       <div className={cl('images')}>
         <Image
           className={cl('img')}
@@ -60,10 +60,7 @@ function Pane({ data, active, onClose, onGoToPosition, animateRef }) {
           <button>Pan to</button>
         </form>
       </div>
-      <div onClick={onClose} className={cl('toggle')}>
-        <CaretLeftOutlined />
-      </div>
-    </div>
+    </Drawer>
   )
 }
 
