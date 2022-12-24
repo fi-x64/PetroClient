@@ -14,9 +14,15 @@ function Pane({ data, active, onClose, onGoToPosition, animateRef }) {
   const map = useMap()
   const [latlng, setLatlng] = useState({})
 
-  const handleClick = (e) => { }
+  const handleClick = (e) => {}
   return (
-    <Drawer title="Thông tin cửa hàng" placement="left" onClose={onClose} open={active} mask={false}>
+    <Drawer
+      title="Thông tin cửa hàng"
+      placement="left"
+      onClose={onClose}
+      open={active}
+      mask={false}
+    >
       <div className={cl('images')}>
         <Image
           className={cl('img')}
@@ -25,17 +31,17 @@ function Pane({ data, active, onClose, onGoToPosition, animateRef }) {
         ></Image>
       </div>
       <div className={cl('group')}>
-        <div className={cl('name')}>{data.name}</div>
-        <div className={cl('text')}>{data.type}</div>
+        <div className={cl('name')}>{data?.name}</div>
+        <div className={cl('text')}>{data?.type || 'Petro station'}</div>
       </div>
       <div className={cl('group')}>
         <InfoItem
           icon={<FontAwesomeIcon icon={faLocationDot} className={cl('icon')} />}
-          text="261/2, ĐT919, Trường Xuân, Thới Lai, Cần Thơ, Việt Nam"
+          text={data?.address}
         ></InfoItem>
       </div>
       <div className={cl('group')}>
-        <form
+        {/* <form
           onSubmit={(e) => {
             e.preventDefault()
             onGoToPosition([latlng.lat, latlng.lng])
@@ -58,7 +64,7 @@ function Pane({ data, active, onClose, onGoToPosition, animateRef }) {
             }
           ></Input>
           <button>Pan to</button>
-        </form>
+        </form> */}
       </div>
     </Drawer>
   )

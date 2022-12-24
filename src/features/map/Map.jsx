@@ -6,6 +6,8 @@ import styles from './Map.module.scss'
 import classNames from 'classnames/bind'
 import { Button } from 'antd'
 import AddPane from '../../components/molecule/Pane/AddPane'
+import { getAllStaion } from '../../services/station'
+import { useQuery } from '@tanstack/react-query'
 
 const cl = classNames.bind(styles)
 
@@ -13,18 +15,15 @@ function Map() {
   const [showPane, togglePane] = useState(false)
   const [showAddPane, toggleAddPane] = useState(false)
 
-  const [markers, setMarkers] = useState([
-    [10, 106.4],
-    [11, 105.6],
-  ])
-  const [temporaryMarkers, setTemporaryMarkers] = useState([])
+  const [currentStation, setCurrentStation] = useState(null)
 
-  const handleTogglePane = () => {
-    togglePane((prev) => !prev)
-  }
+  const stationQuery = useQuery(['stations'], getAllStaion)
+  console.log(stationQuery?.data)
+
+  const [temporaryMarker, setTemporaryMarker] = useState(null)
 
   const addTemporaryMaker = (latlng) => {
-    setTemporaryMarkers((prev) => [...prev, latlng])
+    setTemporaryMarker(latlng)
   }
 
   const animateRef = useRef(false)
@@ -42,25 +41,25 @@ function Map() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {markers.map((x, i) => (
+        {stationQuery?.data?.map((x, i) => (
           <Marker
             key={i}
             eventHandlers={{
               click: (e) => {
                 togglePane(true)
+                setCurrentStation(x)
               },
             }}
-            position={x}
+            position={[x.latitude, x.longtitude]}
           >
             <Popup>
-              Lat: {x[0]}, Long: {x[1]}
+              Lat: {x.latitude}, Long: {x.longtitude}
             </Popup>
           </Marker>
         ))}
-        {temporaryMarkers.map((x, i) => (
+        {temporaryMarker && (
           <Marker
             draggable
-            key={i}
             eventHandlers={{
               click: (e) => {
                 togglePane(true)
@@ -69,26 +68,25 @@ function Map() {
             position={x}
           >
             <Popup>
-              Lat: {x[0]}, Long: {x[1]}
+              Lat: {temporaryMarker[0]}, Long: {temporaryMarker[1]}
             </Popup>
           </Marker>
-        ))}
+        )}
         <TogglePane
           toggle={(value) => togglePane(value)}
-          markers={markers}
+          markers={stationQuery?.data}
         ></TogglePane>
         <Pane
-          data={{ name: 'Petro', type: 'Cay xang' }}
+          data={currentStation}
           active={showPane}
           onClose={() => togglePane(false)}
           animateRef={animateRef}
           onGoToPosition={(latlng) => addTemporaryMaker(latlng)}
         ></Pane>
-        <Button className={cl('add-btn')} onClick={() => toggleAddPane(true)}>Thêm mới</Button>
-        <AddPane
-          active={showAddPane}
-          onClose={() => toggleAddPane(false)}
-        />
+        <Button className={cl('add-btn')} onClick={() => toggleAddPane(true)}>
+          Thêm mới
+        </Button>
+        <AddPane active={showAddPane} onClose={() => toggleAddPane(false)} />
       </MapContainer>
     </div>
   )
