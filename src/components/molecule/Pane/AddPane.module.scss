@@ -54,9 +54,17 @@
     cursor          : pointer;
 }
 
-.latlng{
-    display: flex;
+.latlng {
+    display        : flex;
     justify-content: space-between;
-    align-items: center;
-    gap: 12px;
+    align-items    : center;
+    gap            : 12px;
+}
+
+input.input-error {
+    border-color: #fc8181 !important;
+}
+
+.error-msg {
+    color: #fc8181 !important;
 }
