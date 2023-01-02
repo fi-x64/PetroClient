@@ -5,108 +5,100 @@ import classNames from 'classnames/bind'
 import styles from './AddPane.module.scss'
 import {
   Button,
-  Input,
   Form,
-  Image,
   Drawer,
-  InputNumber,
-  DatePicker,
   Tooltip,
-  Select,
-  Upload,
 } from 'antd'
-import { PlusOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs'
-import customParseFormat from 'dayjs/plugin/customParseFormat'
+import { ErrorMessage, Field, Formik } from 'formik'
+import { basicSchema } from '../../../schemas'
+import InputField from '../../custom-fields/InputField'
+import SelectField from '../../custom-fields/SelectField'
+import UploadField from '../../custom-fields/UploadField'
+import RangePicker from '../../custom-fields/RangePicker'
 
 const cl = classNames.bind(styles)
 
 function AddPane({ active, onClose }) {
-  dayjs.extend(customParseFormat)
-  const dateFormat = 'YYYY/MM/DD'
-  const { RangePicker } = DatePicker
+  const initialValues = {
+    name: "",
+    longitude: "",
+    latitude: "",
+    companyName: "",
+    address: "",
 
-  var [totalColumn, setTotalColumn] = useState(0);
+    numColumn: "",
 
-  var [valuesForm, setValuesForm] = useState("");
-
-  const onChange = (value) => {
-    setTotalColumn(value)
+    columns: [
+      {
+        columnNumber: "",
+        columnCheckNumber: "",
+        columnType: "",
+        columnInspectionDate: "",
+        columnTermDate: "",
+      }
+    ],
   }
 
-  const onFinish = (values) => {
-    setValuesForm(values);
-    console.log("Check state: ", valuesForm);
-  };
-
-  const renderOptions = () => {
+  const renderOptions = (numColumns, values) => {
     let content = []
-    for (let i = 0; i < totalColumn; i++) {
+    for (let i = 0; i < numColumns; i++) {
       var labelText = 'Nhập thông tin cột đo thứ ' + (i + 1)
       content.push(
         <li key={i} style={{ marginLeft: '20px' }}>
           <label>{labelText}</label>
-          <Form.Item
+          <Field
+            name={`columns[${i}].columnType`}
             label="Chọn loại cột đo"
-            name={["columnType", i]}
-            rules={[{ required: true, message: 'Vui lòng chọn loại cột đo!' }]}
+            component={SelectField}
+            options={[
+              {
+                value: 'jack',
+                name: 'Jack',
+              },
+              {
+                value: 'lucy',
+                name: 'Lucy',
+              },
+              {
+                value: 'Yiminghe',
+                name: 'yiminghe',
+              },
+            ]}
+            onChangeFromParent={(value) => {
+              value ? values.columns[i].columnType = value : "";
+            }}
           >
-            <Select>
-              <Select.Option value="demo">Demo</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label={'Số cột đo'}
-            type="text"
-            name={["fuelNumber", i]}
-            rules={[{ min: 1, required: true, message: 'Vui lòng nhập số cột đo!' }]}
+          </Field>
+          <Field
+            name={`columns[${i}].columnNumber`}
+            label={'Mã số cột đo'}
+            component={InputField}
           >
-            <Input />
-          </Form.Item>
-          <Form.Item
+          </Field>
+          <Field
+            name={`columns[${i}].columnCheckNumber`}
             label={'Số tem kiểm định'}
-            type="text"
-            name={["checkNumber", i]}
-            rules={[{ min: 1, required: true, message: 'Vui lòng nhập số tem kiểm định!' }]}
+            component={InputField}
           >
-            <Input />
-          </Form.Item>
+          </Field>
 
-          <Form.Item
-            label={'Ngày kiểm định/Hạn kiểm định'}
-            name={["columnDate", i]}
-            rules={[{ required: true, message: 'Vui lòng chọn ngày kiểm định, hạn kiểm định!' }]}
+          <Field
+            name={`columns[${i}].columnDate`}
+            label={'Ngày kiểm định / Hạn kiểm định'}
+            component={RangePicker}
+            onChangeFromParent={(value) => {
+              if (value) {
+                values.columns[i].columnInspectionDate = value[0];
+                values.columns[i].columnTermDate = value[1];
+              }
+            }}
           >
-            <RangePicker
-              // defaultValue={[dayjs('2015/01/01', dateFormat), dayjs('2015/01/01', dateFormat)]}
-              placeholder={['Ngày kiểm định', 'Hạn kiểm định']}
-              format={dateFormat}
-              style={{ width: '100%' }}
-            />
-          </Form.Item>
+          </Field>
         </li>
       )
     }
     return content
   }
-
-  // const { values, errors, touched, handleBlur, handleChange, handleSubmit } = useFormik({
-  //   initialValues: {
-  //     name: "",
-  //     companyName: "",
-  //     address: "",
-  //     longitude: "",
-  //     latitude: "",
-  //     numColumn: "",
-  //     fuelNumber: "",
-  //     checkNumber: "",
-  //     columnType: "",
-  //     inspectionDate: "",
-  //     termDate: "",
-  //   },
-  //   validationSchema: basicSchema,
-  //   onSubmit
-  // });
 
   return (
     <Drawer
@@ -116,107 +108,125 @@ function AddPane({ active, onClose }) {
       open={active}
       mask={false}
     >
-      <Form onFinish={onFinish} name="basic" layout="vertical" autoComplete="off">
-        <Form.Item
-          id="name"
-          type="text"
-          name="name"
-          label="Tên cửa hàng"
-          rules={[{ required: true, min: 4, max: 100, message: 'Vui lòng nhập tên cửa hàng!' }]}
-        >
-          <Input />
-        </Form.Item>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={basicSchema}
+      >
+        {formikProps => {
+          const { values, errors, touched } = formikProps;
 
-        <Form.Item
-          label="Chọn doanh nghiệp"
-          name="companyName">
-          <Select>
-            <Select.Option value="demo">Demo</Select.Option>
-          </Select>
-        </Form.Item>
+          const onFinish = () => {
+            console.log("Submitted: ", values);
+          };
 
-        <Form.Item
-          label="Địa chỉ"
-          name="address"
-          id="address"
-          type="text"
-          rules={[{ required: true, min: 4, max: 100, message: 'Vui lòng nhập địa chỉ!' }]}
-        >
-          <Input />
-        </Form.Item>
+          console.log({ values, errors, touched });
 
-        <div className={cl('latlng')}>
-          <Form.Item
-            label="Kinh độ"
-            name="longitude"
-            id="longitude"
-            type="number"
-            rules={[{ type: 'number', min: -180, max: 180, required: true, message: 'Vui lòng nhập kinh độ' }]}
-          >
-            <InputNumber
-              style={{ width: '100%' }}
-            />
-          </Form.Item>
+          return (
+            <Form onFinish={formikProps.handleSubmit} name="basic" layout="vertical" autoComplete="off">
+              <Field
+                name="name"
+                component={InputField}
 
-          <Form.Item
-            label="Vĩ độ"
-            name="latitude"
-            id="latitude"
-            type="number"
-            rules={[{ type: 'number', min: -90, max: 90, required: true, message: 'Vui lòng nhập vĩ độ' }]}
-          >
-            <InputNumber
-              style={{ width: '100%' }}
-            />
-          </Form.Item>
-          <Tooltip title="Go to position">
-            <Button type="primary" shape="circle" icon={<SearchOutlined />} />
-          </Tooltip>
-        </div>
+                label="Tên cửa hàng"
+                placeholder="Cây xăng Châu Thành..."
+              />
+              <Field
+                name="companyName"
+                component={SelectField}
 
-        <Form.Item
-          label="Thêm hình ảnh"
-          valuePropName="fileList"
-          name="storeImages"
-        // rules={[{ required: true, message: 'Vui lòng thêm hình ảnh' }]}
-        >
-          <Upload
-            // action="/upload.do"
-            listType="picture-card"
-          >
-            <div>
-              <PlusOutlined />
-              <div style={{ marginTop: 8 }}>Upload</div>
-            </div>
-          </Upload>
-        </Form.Item>
+                label="Chọn doanh nghiệp"
+                placeholder="Doanh nghiệp..."
+                onChangeFromParent={(value) => {
+                  value ? values.companyName = value : "";
+                }}
+                options={[
+                  {
+                    value: 'jack',
+                    name: 'Jack',
+                  },
+                  {
+                    value: 'lucy',
+                    name: 'Lucy',
+                  },
+                  {
+                    value: 'Yiminghe',
+                    name: 'yiminghe',
+                  },
+                ]}
+              />
+              <Field
+                name="address"
+                component={InputField}
 
-        <Form.Item
-          label="Số lượng cột đo"
-          name="numColumn"
-          id="numColumn"
-          type="number"
-          rules={[
-            { type: 'number', min: 1, required: true, message: 'Vui lòng nhập số lượng cột đo!' },
-          ]}
-        >
-          <InputNumber
-            onChange={onChange}
-            style={{ width: '100%' }}
-          />
-        </Form.Item>
+                label="Địa chỉ"
+                placeholder="225, đường Trần Hưng Đạo..."
+              />
+              <div className={cl('latlng')}>
+                <Field
+                  name="longitude"
+                  component={InputField}
 
-        <ul>{renderOptions()}</ul>
+                  label="Kinh độ"
+                  type="number"
+                  min={-180}
+                  max={180}
+                />
+                <Field
+                  name="latitude"
+                  component={InputField}
 
-        <Form.Item
-          wrapperCol={{ offset: 8, span: 16 }}
-          style={{ width: '100%', marginTop: '20px' }}
-        >
-          <Button type="primary" htmlType="submit">
-            Lưu thông tin
-          </Button>
-        </Form.Item>
-      </Form>
+                  label="Vĩ độ"
+                  type="number"
+                  min={-90}
+                  max={90}
+                />
+                <Tooltip title="Go to position">
+                  <Button type="primary" shape="circle" icon={<SearchOutlined />} />
+                </Tooltip>
+              </div>
+              <Field
+                name="taxNumber"
+                component={InputField}
+
+                label="Mã số thuế"
+              />
+              <Field
+                name="certNumber"
+                component={InputField}
+
+                label="Số giấy chứng nhận đủ điều kiện"
+              />
+              <Field
+                name="storeImages"
+                component={UploadField}
+
+                label="Ảnh cửa hàng"
+              />
+              <Field
+                label="Số lượng cột đo"
+                name="numColumn"
+                component={InputField}
+
+                min={1}
+                type="number"
+              >
+              </Field>
+
+              <ul name="columns">{renderOptions(values.numColumn, values)}</ul>
+
+              <Form.Item
+                wrapperCol={{ offset: 8, span: 16 }}
+                style={{ width: '100%', marginTop: '20px' }}
+              >
+                <Button type="primary" htmlType="submit">
+                  Lưu thông tin
+                </Button>
+              </Form.Item>
+            </Form>
+          );
+        }}
+
+      </Formik>
     </Drawer>
   )
 }
