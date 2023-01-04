@@ -5,9 +5,9 @@ import TogglePane from './components/TogglePane'
 import styles from './Map.module.scss'
 import classNames from 'classnames/bind'
 import { Button } from 'antd'
-import AddPane from '../../components/molecule/Pane/AddPane'
 import { getAllStaion } from '../../services/station'
 import { useQuery } from '@tanstack/react-query'
+import EditPane from '../../components/molecule/EditPane/EditPane'
 
 const cl = classNames.bind(styles)
 
@@ -18,7 +18,6 @@ function Map() {
   const [currentStation, setCurrentStation] = useState(null)
 
   const stationQuery = useQuery(['stations'], getAllStaion)
-  console.log(stationQuery?.data)
 
   const [temporaryMarker, setTemporaryMarker] = useState(null)
 
@@ -50,14 +49,14 @@ function Map() {
                 setCurrentStation(x)
               },
             }}
-            position={[x.latitude, x.longtitude]}
+            position={[x.latitude, x.longitude]}
           >
             <Popup>
-              Lat: {x.latitude}, Long: {x.longtitude}
+              Lat: {x.latitude}, Long: {x.longitude}
             </Popup>
           </Marker>
         ))}
-        {temporaryMarker && (
+        {temporaryMarker !== null && (
           <Marker
             draggable
             eventHandlers={{
@@ -65,7 +64,7 @@ function Map() {
                 togglePane(true)
               },
             }}
-            position={x}
+            position={temporaryMarker}
           >
             <Popup>
               Lat: {temporaryMarker[0]}, Long: {temporaryMarker[1]}
@@ -86,7 +85,15 @@ function Map() {
         <Button className={cl('add-btn')} onClick={() => toggleAddPane(true)}>
           Thêm mới
         </Button>
-        <AddPane active={showAddPane} onClose={() => toggleAddPane(false)} />
+        <EditPane
+          // active={showAddPane}
+          stationId={'63b4eac2f065ae7d4a61ed6e'}
+          temporaryMarker={temporaryMarker}
+          active={true}
+          onClose={() => toggleAddPane(false)}
+          onGoToPosition={(latlng) => addTemporaryMaker(latlng)}
+          animateRef={animateRef}
+        />
       </MapContainer>
     </div>
   )

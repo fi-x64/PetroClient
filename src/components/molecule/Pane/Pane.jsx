@@ -12,11 +12,7 @@ import InfoItem from '../../atom/InfoItem/InfoItem'
 import FuelColumn from '../../atom/FuelColumn/FuelColumn'
 const cl = classNames.bind(styles)
 
-function Pane({ data, active, onClose, onGoToPosition, animateRef }) {
-  const map = useMap()
-  const [latlng, setLatlng] = useState({})
-
-  const handleClick = (e) => {}
+function Pane({ data, active, onClose }) {
   return (
     <Drawer
       title="Thông tin cửa hàng"
@@ -87,7 +83,11 @@ function Pane({ data, active, onClose, onGoToPosition, animateRef }) {
       <div className={cl('group')}>
         <div className={cl('columns')}>Fuel columns</div>
         {data?.fuelColumns.map((fuelColumn, index) => (
-          <FuelColumn index={index + 1} data={fuelColumn}></FuelColumn>
+          <FuelColumn
+            key={index}
+            index={index + 1}
+            data={fuelColumn}
+          ></FuelColumn>
         ))}
       </div>
     </Drawer>
