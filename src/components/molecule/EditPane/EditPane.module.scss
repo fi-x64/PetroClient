@@ -1,0 +1,125 @@
+.group {
+    display: block;
+
+    +.group {
+        margin-top: 20px;
+    }
+
+    +.row {
+        margin-top: 20px;
+    }
+}
+
+.label {
+    font-size: .9rem;
+    color: #1d1f1a;
+    font-weight: 500;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.list {
+    margin-top: 20px;
+}
+
+.go-button {
+    align-self: flex-end;
+}
+
+.fuel {
+    padding: 12px;
+    background-color: #f5fbff;
+
+    +.fuel {
+        margin-top: 20px;
+    }
+
+    .fuel-action {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .number {
+        font-weight: 500;
+        color: var(--primary-1);
+    }
+}
+
+.add {
+    margin-inline: auto;
+    display: block;
+    margin-top: 20px;
+}
+
+.form {
+    height: calc(100vh - 154px);
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+
+    }
+
+    /* Track */
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    /* Handle */
+    &::-webkit-scrollbar-thumb {
+        background: rgb(201, 210, 240);
+    }
+
+    /* Handle on hover */
+    &::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: var(--white);
+    box-shadow: 0px -3px 5px rgba(0, 0, 0, 0.1);
+}
+
+.image-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+
+    .image {
+        margin-top: 8px;
+        width: 60px;
+        height: 60px;
+        position: relative;
+
+        .img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .image-delete{
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+        }
+    }
+}
