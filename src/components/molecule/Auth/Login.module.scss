@@ -5,7 +5,6 @@ body {
     display        : flex;
     justify-content: center;
     align-items    : center;
-    flex-direction : column;
     font-family    : 'Montserrat', sans-serif;
     height         : 100vh;
     margin         : -20px 0 50px;
@@ -17,61 +16,11 @@ h1 {
     margin     : 20px 0 !important;
 }
 
-p {
-    font-size     : 14px;
-    font-weight   : 100;
-    line-height   : 20px;
-    letter-spacing: 0.5px;
-    margin        : 20px 0 30px;
-}
-
-span {
-    font-size: 12px;
-}
-
-a {
-    color          : #2775e3;
-    font-size      : 14px;
-    text-decoration: none;
-    margin         : 10px 0 !important;
-}
-
-button {
-    cursor          : pointer;
-    border-radius   : 20px;
-    border          : 1px solid #FF4B2B;
-    background-color: #FF4B2B;
-    color           : #FFFFFF;
-    font-size       : 12px;
-    font-weight     : bold;
-    padding         : 12px 45px;
-    letter-spacing  : 1px;
-    text-transform  : uppercase;
-    transition      : transform 80ms ease-in;
-
-    &:hover {
-        opacity: 0.8;
-    }
-}
-
 form {
-    background-color: #FFFFFF;
-    display         : flex;
-    align-items     : center;
-    justify-content : center;
-    flex-direction  : column;
-    padding         : 0 50px;
-    height          : 100%;
-    text-align      : center;
-    width           : 80%;
-}
-
-input {
-    background-color: #eee;
-    border          : none;
-    padding         : 12px 15px;
-    margin          : 8px 0;
-    width           : 100%;
+    display        : flex;
+    justify-content: center;
+    flex-direction : column;
+    height         : calc(100vh - 154px);
 }
 
 .container {
@@ -100,4 +49,39 @@ input {
     bottom         : 0;
     left           : 0;
     right          : 0;
+}
+
+.label {
+    font-size  : .9rem;
+    color      : #1d1f1a;
+    font-weight: 500;
+}
+
+.group {
+    display: block;
+
+    +.group {
+        margin-top: 20px;
+    }
+
+    +.row {
+        margin-top: 20px;
+    }
+}
+
+.row-group {
+    margin-bottom: 30px;
+}
+
+.footer {
+    display         : flex;
+    align-items     : center;
+    justify-content : center;
+    position        : absolute;
+    bottom          : 0;
+    left            : 0;
+    right           : 0;
+    height          : 60px;
+    background-color: var(--white);
+    box-shadow      : 0px -3px 5px rgba(0, 0, 0, 0.1);
 }

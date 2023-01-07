@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import * as Yup from 'yup'
+import { useDispatch, useSelector } from "react-redux"
+
 import {
   Button,
   Drawer,
@@ -473,7 +475,7 @@ function EditPane({
                             value={values.fuelColumns[index].fuelNumber}
                             status={
                               errors?.fuelColumns?.[index]?.fuelNumber &&
-                              touched?.fuelColumns?.[index]?.fuelNumber
+                                touched?.fuelColumns?.[index]?.fuelNumber
                                 ? 'error'
                                 : ''
                             }
@@ -501,7 +503,7 @@ function EditPane({
                             value={values.fuelColumns[index].checkNumber}
                             status={
                               errors?.fuelColumns?.[index]?.checkNumber &&
-                              touched?.fuelColumns?.[index]?.checkNumber
+                                touched?.fuelColumns?.[index]?.checkNumber
                                 ? 'error'
                                 : ''
                             }
@@ -530,14 +532,14 @@ function EditPane({
                               values.fuelColumns[index].inspectionDate === null
                                 ? null
                                 : dayjs(
-                                    values.fuelColumns[index].inspectionDate
-                                  ),
+                                  values.fuelColumns[index].inspectionDate
+                                ),
                             ]}
                             status={
                               (errors?.fuelColumns?.[index]?.termDate &&
                                 touched?.fuelColumns?.[index]?.termDate) ||
-                              (errors?.fuelColumns?.[index]?.inspectionDate &&
-                                touched?.fuelColumns?.[index]?.inspectionDate)
+                                (errors?.fuelColumns?.[index]?.inspectionDate &&
+                                  touched?.fuelColumns?.[index]?.inspectionDate)
                                 ? 'error'
                                 : ''
                             }
@@ -577,7 +579,7 @@ function EditPane({
                             value={values.fuelColumns[index].columnType}
                             status={
                               errors?.fuelColumns?.[index]?.columnType &&
-                              touched?.fuelColumns?.[index]?.columnType
+                                touched?.fuelColumns?.[index]?.columnType
                                 ? 'error'
                                 : ''
                             }
