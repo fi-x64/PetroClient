@@ -8,10 +8,17 @@ import { Button } from 'antd'
 import { getAllStaion } from '../../services/station'
 import { useQuery } from '@tanstack/react-query'
 import EditPane from '../../components/molecule/EditPane/EditPane'
+import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { logout } from '../../services/auth.service'
 
 const cl = classNames.bind(styles)
 
 function Map() {
+  let navigate = useNavigate();
+
+  const { user: currentUser } = useSelector((state) => state.auth);
+
   const [showPane, togglePane] = useState(false)
   const [showAddPane, toggleAddPane] = useState(false)
 
@@ -21,11 +28,20 @@ function Map() {
 
   const [temporaryMarker, setTemporaryMarker] = useState(null)
 
+  const dispatch = useDispatch();
+
   const addTemporaryMaker = (latlng) => {
     setTemporaryMarker(latlng)
   }
 
+  const handleLogout = () => {
+    dispatch(logout);
+    navigate("/");
+    window.location.reload();
+  }
+
   const animateRef = useRef(false)
+
   return (
     <div>
       <MapContainer
@@ -82,9 +98,23 @@ function Map() {
           animateRef={animateRef}
           onGoToPosition={(latlng) => addTemporaryMaker(latlng)}
         ></Pane>
-        <Button className={cl('add-btn')} onClick={() => toggleAddPane(true)}>
-          Thêm mới
-        </Button>
+        <div className={cl('control-btn')}>
+          <Button className={cl('add-btn')}
+            onClick={() => toggleAddPane(true)}>
+            Thêm mới
+          </Button>
+
+          {!currentUser ?
+            <Button
+              onClick={() => navigate("/login")}
+            >
+              Đăng nhập
+            </Button> : <Button
+              onClick={() => handleLogout()}
+            >
+              Đăng xuất
+            </Button>}
+        </div>
         <EditPane
           // active={showAddPane}
           stationId={'63b4eac2f065ae7d4a61ed6e'}
