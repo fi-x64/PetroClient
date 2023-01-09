@@ -11,15 +11,35 @@ function ActionButton({
   to,
   tooltipText,
   onClick,
+  showConfirm,
   disabled = false,
-  className
+  className,
 }) {
   let Comp = 'button'
   if (to) Comp = Link
+  if (!showConfirm)
+    return (
+      <Tooltip placement="bottomRight" title={tooltipText}>
+        <Comp
+          className={`${cl('wrapper', {
+            [type]: type,
+            disabled,
+          })} ${className}`}
+          onClick={() => onClick()}
+        >
+          {icon}
+        </Comp>
+      </Tooltip>
+    )
   return (
     <Popconfirm title="Are you sure?" onConfirm={() => onClick()}>
       <Tooltip placement="bottomRight" title={tooltipText}>
-        <Comp className={`${cl('wrapper', { [type]: type, disabled })} ${className}`}>
+        <Comp
+          className={`${cl('wrapper', {
+            [type]: type,
+            disabled,
+          })} ${className}`}
+        >
           {icon}
         </Comp>
       </Tooltip>

@@ -1,7 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import * as Yup from 'yup'
-import { useDispatch, useSelector } from "react-redux"
-
 import {
   Button,
   Drawer,
@@ -23,7 +21,7 @@ import {
   InboxOutlined,
   SearchOutlined,
 } from '@ant-design/icons'
-import { useMap, useMapEvents } from 'react-leaflet'
+import { useMap } from 'react-leaflet'
 import dayjs from 'dayjs'
 import ActionButton from '../../atom/ActionButton'
 import { getFuelTypes } from '../../../services/type'
@@ -87,18 +85,19 @@ function EditPane({
   onGoToPosition,
   animateRef,
   temporaryMarker,
+  setNewTemporaryMarker,
   stationId,
 }) {
+  const formikRef = useRef()
   const map = useMap()
-  const [stationLatlng, setStationLatlng] = useState([0, 0])
   const [loading, setLoading] = useState(false)
 
-  const mapEvent = useMapEvents({
-    click: (e) => {
-      console.log(e.latlng)
-      setStationLatlng([e.latlng.lat, e.latlng.lng])
-    },
-  })
+  useEffect(() => {
+    if (formikRef.current) {
+      formikRef.current.setFieldValue('latitude', temporaryMarker[0] || 0)
+      formikRef.current.setFieldValue('longitude', temporaryMarker[1] || 0)
+    }
+  }, [temporaryMarker])
 
   const fuelTypeQuery = useQuery(['fuel-types'], getFuelTypes)
   const staionQuery = useQuery(
@@ -123,7 +122,6 @@ function EditPane({
     imagePublicId,
     stationId,
   }) => {
-    console.log(stationId)
     if (imagePublicId) {
       deleteImageMutation.mutate({ stationId, imagePublicId })
     } else {
@@ -142,7 +140,7 @@ function EditPane({
     setLoading(true)
     const key = 'uploadable'
     message.loading({
-      content: 'Uploading your images. Please wait...',
+      content: 'Uploading your images. Please do not exit the browser',
       key,
     })
     for (let image of values.images) {
@@ -165,6 +163,7 @@ function EditPane({
     } else {
       res.data.errors.forEach((err) => setFieldError(err.param, err.msg))
     }
+    setLoading(false)
     message.success({
       content: 'Upload completed',
       key,
@@ -181,6 +180,7 @@ function EditPane({
       mask={false}
     >
       <Formik
+        innerRef={formikRef}
         initialValues={
           staionQuery?.data || {
             name: '',
@@ -214,7 +214,7 @@ function EditPane({
               <label className={cl('label')} htmlFor="name">
                 Station name: <RequiredIcon />
               </label>
-              <FastField
+              <Field
                 name="name"
                 id="name"
                 component={Input}
@@ -223,7 +223,7 @@ function EditPane({
                 className={cl('input')}
                 onChange={handleChange}
                 onBlur={handleBlur}
-              ></FastField>
+              ></Field>
               <ErrorMessage
                 className="field-error"
                 component="div"
@@ -427,15 +427,14 @@ function EditPane({
                   icon={<SearchOutlined />}
                 />
               </Tooltip>
-              <Tooltip title="Mark position by hand">
+              <Tooltip title="Mark position by hand. Drag the marker to the chosen location.">
                 <Button
                   onClick={(e) => {
-                    setFieldValue('latitude', stationLatlng[0])
-                    setFieldValue('longitude', stationLatlng[1])
-                    onGoToPosition([values.latitude, values.longitude])
-                    map.flyTo([values.latitude, values.longitude], 10, {
-                      animate: animateRef.current || false,
-                    })
+                    const currentCenterLatlng = map.getCenter()
+                    setNewTemporaryMarker([
+                      currentCenterLatlng.lat,
+                      currentCenterLatlng.lng,
+                    ])
                   }}
                   className={cl('go-button')}
                   type="primary"
@@ -475,7 +474,7 @@ function EditPane({
                             value={values.fuelColumns[index].fuelNumber}
                             status={
                               errors?.fuelColumns?.[index]?.fuelNumber &&
-                                touched?.fuelColumns?.[index]?.fuelNumber
+                              touched?.fuelColumns?.[index]?.fuelNumber
                                 ? 'error'
                                 : ''
                             }
@@ -503,7 +502,7 @@ function EditPane({
                             value={values.fuelColumns[index].checkNumber}
                             status={
                               errors?.fuelColumns?.[index]?.checkNumber &&
-                                touched?.fuelColumns?.[index]?.checkNumber
+                              touched?.fuelColumns?.[index]?.checkNumber
                                 ? 'error'
                                 : ''
                             }
@@ -532,14 +531,14 @@ function EditPane({
                               values.fuelColumns[index].inspectionDate === null
                                 ? null
                                 : dayjs(
-                                  values.fuelColumns[index].inspectionDate
-                                ),
+                                    values.fuelColumns[index].inspectionDate
+                                  ),
                             ]}
                             status={
                               (errors?.fuelColumns?.[index]?.termDate &&
                                 touched?.fuelColumns?.[index]?.termDate) ||
-                                (errors?.fuelColumns?.[index]?.inspectionDate &&
-                                  touched?.fuelColumns?.[index]?.inspectionDate)
+                              (errors?.fuelColumns?.[index]?.inspectionDate &&
+                                touched?.fuelColumns?.[index]?.inspectionDate)
                                 ? 'error'
                                 : ''
                             }
@@ -579,7 +578,7 @@ function EditPane({
                             value={values.fuelColumns[index].columnType}
                             status={
                               errors?.fuelColumns?.[index]?.columnType &&
-                                touched?.fuelColumns?.[index]?.columnType
+                              touched?.fuelColumns?.[index]?.columnType
                                 ? 'error'
                                 : ''
                             }

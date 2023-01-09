@@ -15,29 +15,34 @@ import { logout } from '../../services/auth.service'
 const cl = classNames.bind(styles)
 
 function Map() {
-  let navigate = useNavigate();
-
-  const { user: currentUser } = useSelector((state) => state.auth);
+  let navigate = useNavigate()
+  const temporaryMarkerRef = useRef(null)
+  const { user: currentUser } = useSelector((state) => state.auth)
 
   const [showPane, togglePane] = useState(false)
   const [showAddPane, toggleAddPane] = useState(false)
-
   const [currentStation, setCurrentStation] = useState(null)
+  const [temporaryMarker, setTemporaryMarker] = useState(null)
 
   const stationQuery = useQuery(['stations'], getAllStaion)
 
-  const [temporaryMarker, setTemporaryMarker] = useState(null)
-
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
   const addTemporaryMaker = (latlng) => {
     setTemporaryMarker(latlng)
   }
 
+  const handleToggleEditStation = () => {
+    console.log(currentStation)
+    togglePane(false)
+    toggleAddPane(true)
+    // setCurrentStation(data)
+  }
+
   const handleLogout = () => {
-    dispatch(logout);
-    navigate("/");
-    window.location.reload();
+    dispatch(logout)
+    navigate('/')
+    window.location.reload()
   }
 
   const animateRef = useRef(false)
@@ -61,6 +66,7 @@ function Map() {
             key={i}
             eventHandlers={{
               click: (e) => {
+                toggleAddPane(false)
                 togglePane(true)
                 setCurrentStation(x)
               },
@@ -75,51 +81,58 @@ function Map() {
         {temporaryMarker !== null && (
           <Marker
             draggable
+            ref={temporaryMarkerRef}
             eventHandlers={{
-              click: (e) => {
-                togglePane(true)
+              dragend() {
+                const marker = temporaryMarkerRef.current
+                if (marker != null) {
+                  setTemporaryMarker([marker._latlng.lat, marker._latlng.lng])
+                }
               },
             }}
             position={temporaryMarker}
           >
             <Popup>
-              Lat: {temporaryMarker[0]}, Long: {temporaryMarker[1]}
+              Lat: {temporaryMarker[0]}
+              <br /> Long: {temporaryMarker[1]}
             </Popup>
           </Marker>
         )}
-        <TogglePane
+        {/* <TogglePane
           toggle={(value) => togglePane(value)}
           markers={stationQuery?.data}
-        ></TogglePane>
+        ></TogglePane> */}
         <Pane
+          onEdit={()=>handleToggleEditStation()}
           data={currentStation}
           active={showPane}
           onClose={() => togglePane(false)}
-          animateRef={animateRef}
-          onGoToPosition={(latlng) => addTemporaryMaker(latlng)}
         ></Pane>
         <div className={cl('control-btn')}>
-          <Button className={cl('add-btn')}
-            onClick={() => toggleAddPane(true)}>
+          <Button
+            className={cl('add-btn')}
+            onClick={() => {
+              togglePane(false)
+              setCurrentStation(undefined)
+              toggleAddPane(true)
+            }}
+          >
             Thêm mới
           </Button>
 
-          {!currentUser ?
-            <Button
-              onClick={() => navigate("/login")}
-            >
-              Đăng nhập
-            </Button> : <Button
-              onClick={() => handleLogout()}
-            >
-              Đăng xuất
-            </Button>}
+          {!currentUser ? (
+            <Button onClick={() => navigate('/login')}>Đăng nhập</Button>
+          ) : (
+            <Button onClick={() => handleLogout()}>Đăng xuất</Button>
+          )}
         </div>
         <EditPane
-          // active={showAddPane}
-          stationId={'63b4eac2f065ae7d4a61ed6e'}
+          active={showAddPane}
+          stationId={
+            showAddPane && currentStation?._id ? currentStation._id : undefined
+          }
           temporaryMarker={temporaryMarker}
-          active={true}
+          setNewTemporaryMarker={setTemporaryMarker}
           onClose={() => toggleAddPane(false)}
           onGoToPosition={(latlng) => addTemporaryMaker(latlng)}
           animateRef={animateRef}

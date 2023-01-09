@@ -1,19 +1,16 @@
-.wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 408px;
-    background-color: var(--white);
-    z-index: 1000;
-    overflow-y: auto;
-    overflow-x: hidden;
-    translate: -408px 0;
-    transition: 300ms ease-in-out;
+.pane {
+    display: block;
+    height: 100%;
+}
 
-    &.active {
-        translate: 0 0;
-    }
+.top-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.top-main {
+    flex: 1;
 }
 
 .group {
@@ -54,7 +51,7 @@
     cursor: pointer;
 }
 
-.columns{
+.columns {
     font-size: .9rem;
     font-weight: 500;
     color: rgb(143, 149, 155);
