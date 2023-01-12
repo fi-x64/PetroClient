@@ -3,6 +3,8 @@ import routes from './routes'
 import DefaultLayout from './layouts/DefaultLayout'
 import React from 'react'
 
+import 'leaflet/dist/leaflet.css'
+
 function App() {
   return (
     <div className="App">

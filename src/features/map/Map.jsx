@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import React, { useEffect, useRef, useState } from 'react'
+// import wkx from 'wkx'
+import L from 'leaflet'
+import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from 'react-leaflet'
 import Pane from '../../components/molecule/Pane/Pane'
-import TogglePane from './components/TogglePane'
 import styles from './Map.module.scss'
 import classNames from 'classnames/bind'
 import { Button } from 'antd'
@@ -11,11 +12,13 @@ import EditPane from '../../components/molecule/EditPane/EditPane'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../../services/auth.service'
+import { getAllAreas } from '../../services/area'
 
 const cl = classNames.bind(styles)
 
 function Map() {
   let navigate = useNavigate()
+  const mapRef = useRef()
   const temporaryMarkerRef = useRef(null)
   const { user: currentUser } = useSelector((state) => state.auth)
 
@@ -25,6 +28,7 @@ function Map() {
   const [temporaryMarker, setTemporaryMarker] = useState(null)
 
   const stationQuery = useQuery(['stations'], getAllStaion)
+  const areaQuery = useQuery(['areas'], getAllAreas)
 
   const dispatch = useDispatch()
 
@@ -45,14 +49,17 @@ function Map() {
     window.location.reload()
   }
 
+  const purpleOptions = { color: 'purple' }
+
   const animateRef = useRef(false)
 
   return (
     <div>
       <MapContainer
+        ref={mapRef}
         style={{ width: '100%', height: '100vh' }}
-        zoom={17}
-        center={[10, 106.4]}
+        zoom={11}
+        center={[10.5046, 105.19271850585939]}
         scrollWheelZoom={true}
         fadeAnimation={true}
         markerZoomAnimation={true}
@@ -98,12 +105,14 @@ function Map() {
             </Popup>
           </Marker>
         )}
-        {/* <TogglePane
-          toggle={(value) => togglePane(value)}
-          markers={stationQuery?.data}
-        ></TogglePane> */}
+        {areaQuery.data?.length > 0 &&
+          areaQuery.data.map((area) => (
+            <GeoJSON key={area._id} data={area.geojson} eventHandlers={{}}>
+              <Popup>{area.name}</Popup>
+            </GeoJSON>
+          ))}
         <Pane
-          onEdit={()=>handleToggleEditStation()}
+          onEdit={() => handleToggleEditStation()}
           data={currentStation}
           active={showPane}
           onClose={() => togglePane(false)}

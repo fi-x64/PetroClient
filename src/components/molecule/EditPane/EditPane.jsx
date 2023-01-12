@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import * as Yup from 'yup'
+import turf from '@turf/boolean-point-in-polygon'
+import L from 'leaflet'
 import {
   Button,
   Drawer,
@@ -35,6 +37,8 @@ import {
 } from '../../../services/station'
 import Dragger from 'antd/es/upload/Dragger'
 import axios from 'axios'
+import { getAllAreas } from '../../../services/area'
+import isMarkerInsidePolygon from '../../../utils/isMarkerInsidePolygon'
 
 const cl = classNames.bind(styles)
 const { RangePicker } = DatePicker
@@ -96,6 +100,18 @@ function EditPane({
     if (formikRef.current) {
       formikRef.current.setFieldValue('latitude', temporaryMarker[0] || 0)
       formikRef.current.setFieldValue('longitude', temporaryMarker[1] || 0)
+
+      let insideSomeArea = false
+      for (let area of areaQuery.data || []) {
+        if (turf([temporaryMarker[1], temporaryMarker[0]], area.geojson)) {
+          formikRef.current.setFieldValue('areaId', area._id)
+          insideSomeArea = true
+          break
+        }
+      }
+      if (!insideSomeArea) {
+        formikRef.current.setFieldValue('areaId', area._id)
+      }
     }
   }, [temporaryMarker])
 
@@ -107,59 +123,48 @@ function EditPane({
       enabled: stationId !== undefined,
     }
   )
+  const areaQuery = useQuery(['areas'], getAllAreas)
 
   const deleteImageMutation = useMutation(deleteImage, {
     onSuccess: (res) => {
       console.log(res)
-      staionQuery.refetch()
     },
   })
 
-  const handleDeleteImage = async ({
-    values,
-    setFieldValue,
-    uid,
-    imagePublicId,
-    stationId,
-  }) => {
-    if (imagePublicId) {
-      deleteImageMutation.mutate({ stationId, imagePublicId })
-    } else {
-      setFieldValue(
-        'images',
-        values.images.filter((x) => x.uid !== uid)
-      )
-    }
+  const handleDeleteImage = async ({ imagePublicId, stationId }) => {
+    deleteImageMutation.mutate({ stationId, imagePublicId })
   }
 
   const handleSubmit = async (values, setFieldError) => {
     let operation = addStation
     if (values?._id) operation = updateStation
     let submitValues = JSON.parse(JSON.stringify(values))
-    submitValues.images = []
+    submitValues.images = [...values.images]
     setLoading(true)
     const key = 'uploadable'
     message.loading({
       content: 'Uploading your images. Please do not exit the browser',
       key,
     })
-    for (let image of values.images) {
-      const data = new FormData()
-      data.append('file', image)
-      data.append('upload_preset', 'petro_stations')
-      const uploadRes = await axios.post(
-        'https://api.cloudinary.com/v1_1/dantocthang/image/upload',
-        data,
-        { withCredentials: false }
-      )
-      const { url, public_id } = uploadRes.data
-      submitValues.images.push({ url, public_id })
+    if (values.imageFiles) {
+      for (let image of values.imageFiles) {
+        const data = new FormData()
+        data.append('file', image)
+        data.append('upload_preset', 'petro_stations')
+        const uploadRes = await axios.post(
+          'https://api.cloudinary.com/v1_1/dantocthang/image/upload',
+          data,
+          { withCredentials: false }
+        )
+        const { url, public_id } = uploadRes.data
+        submitValues.images.push({ url, public_id })
+      }
     }
 
     const res = await operation(submitValues)
-    console.log(res)
     if (res.data.success) {
       message.success(res.data.message)
+      staionQuery.refetch()
     } else {
       res.data.errors.forEach((err) => setFieldError(err.param, err.msg))
     }
@@ -192,6 +197,8 @@ function EditPane({
             latitude: 0,
             fuelColumns: [sampleColumn],
             images: [],
+            imageFiles: [],
+            areaId: null,
           }
         }
         onSubmit={(values, { setFieldError }) =>
@@ -242,6 +249,25 @@ function EditPane({
                 status={
                   errors?.company?.name && touched?.company?.name ? 'error' : ''
                 }
+                className={cl('input')}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              ></FastField>
+            </div>
+            <div className={cl('group')}>
+              <label className={cl('label')} htmlFor="address">
+                Area:
+              </label>
+              <FastField
+                name="areaId"
+                id="areaId"
+                component={Input}
+                disabled={true}
+                value={
+                  areaQuery?.data?.find((x) => x._id === values.areaId)?.name ||
+                  ''
+                }
+                status={errors?.areaId && touched?.areaId ? 'error' : ''}
                 className={cl('input')}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -312,22 +338,22 @@ function EditPane({
               ></ErrorMessage>
             </div>
             <div className={cl('group')}>
-              <label className={cl('label')} htmlFor="images">
+              <label className={cl('label')} htmlFor="imageFiles">
                 Images:
               </label>
               <Dragger
                 accept="image/*"
-                name="images"
+                name="imageFiles"
                 multiple={true}
-                fileList={values.images}
+                fileList={values.imageFiles}
                 beforeUpload={async (file, fileList) => {
-                  setFieldValue('images', fileList)
+                  setFieldValue('imageFiles', fileList)
                   return false
                 }}
                 onRemove={(file) =>
                   setFieldValue(
-                    'images',
-                    values.images.filter((x) => x.uid !== file.uid)
+                    'imageFiles',
+                    values.imageFiles.filter((x) => x.uid !== file.uid)
                   )
                 }
               >
@@ -352,15 +378,21 @@ function EditPane({
                     />
                     <ActionButton
                       className={cl('image-delete')}
-                      onClick={() =>
+                      onClick={() => {
+                        setFieldValue(
+                          'images',
+                          values.images.filter(
+                            (x) => x.imagePublicId !== x.public_id
+                          )
+                        )
                         handleDeleteImage({
-                          values,
-                          setFieldValue,
-                          uid: x?.uid,
-                          imagePublicId: x?.public_id,
+                          // values,
+                          // setFieldValue,
+                          // uid: x?.uid,
+                          imagePublicId: x.public_id,
                           stationId: stationId,
                         })
-                      }
+                      }}
                       icon={<DeleteOutlined />}
                       tooltipText="Delete this image?"
                       type="delete"
