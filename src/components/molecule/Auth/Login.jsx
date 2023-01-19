@@ -61,7 +61,7 @@ function Login() {
         <div className={cl('container')} id="container">
           <div className={cl('form-container')}>
             <Form onSubmit={handleSubmit}>
-              <h1>Đăng nhập vào hệ thống</h1>
+              <h1 className={cl('form-title')}>Đăng nhập vào hệ thống</h1>
               <div className={cl('group')}>
                 <div className={cl('row-group')}>
                   <label className={cl('label')} htmlFor="name">

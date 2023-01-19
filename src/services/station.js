@@ -18,8 +18,6 @@ export const deleteImage = async ({ stationId, imagePublicId }) => {
     return []
 }
 
-
-
 export const addStation = async (values) => {
     const res = await request.post('/station', values)
     return res

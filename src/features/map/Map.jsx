@@ -13,6 +13,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../../services/auth.service'
 import { getAllAreas } from '../../services/area'
+import SearchBar from '../../components/atom/SearchBar/SearchBar'
 
 const cl = classNames.bind(styles)
 
@@ -111,6 +112,7 @@ function Map() {
               <Popup>{area.name}</Popup>
             </GeoJSON>
           ))}
+        <SearchBar />
         <Pane
           onEdit={() => handleToggleEditStation()}
           data={currentStation}
