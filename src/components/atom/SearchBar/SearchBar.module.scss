@@ -1,0 +1,8 @@
+.wrapper {
+    display  : block;
+    position : absolute;
+    left     : 50%;
+    transform: translateX(-50%);
+    margin   : 12px auto;
+    z-index  : 1000;
+}

@@ -1,54 +1,41 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
-
-body {
-    // background     : #f6f5f7;
-    // display        : flex;
-    // justify-content: center;
-    // align-items    : center;
-    // font-family    : 'Montserrat', sans-serif;
-    // height         : 100vh;
-    // margin         : -20px 0 50px;
-}
-
-// h1 {
-//     font-size  : 30px !important;
-//     font-weight: bold !important;
-//     margin     : 20px 0 !important;
-// }
-
-// form {
-//     display        : flex;
-//     justify-content: center;
-//     flex-direction : column;
-//     height         : calc(100vh - 154px);
-// }
-
 .container {
+    position        : absolute;
+    top             : 50%;
+    left            : 50%;
+    justify-content : center;
+    align-items     : center;
     background-color: #fff;
     border-radius   : 10px;
     box-shadow      : 0 14px 28px rgba(0, 0, 0, 0.25),
         0 10px 10px rgba(0, 0, 0, 0.22);
-    position  : relative;
     overflow  : hidden;
     width     : 768px;
     max-width : 100%;
     min-height: 480px;
+
+    transform: translate(-50%, -50%);
 }
 
 .form-container {
-    position  : absolute;
-    top       : 0;
-    height    : 100%;
-    transition: all 0.6s ease-in-out;
-
+    align-items    : center;
+    position       : absolute;
+    top            : 0;
+    height         : 100%;
+    transition     : all 0.6s ease-in-out;
     display        : flex;
     justify-content: center;
-    position       : absolute;
     margin         : auto;
     top            : 0;
     bottom         : 0;
     left           : 0;
     right          : 0;
+
+    .form-title {
+        font-size    : 30px;
+        font-weight  : bold;
+        text-align   : center;
+        margin-bottom: 20px;
+    }
 }
 
 .label {
