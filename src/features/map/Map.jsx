@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
 // import wkx from 'wkx'
 import L, { map } from 'leaflet'
+
 import {
   MapContainer,
   TileLayer,
   Marker,
   Popup,
   GeoJSON,
-  useMap,
+  useMapEvent,
 } from 'react-leaflet'
+
 import Pane from '../../components/molecule/Pane/Pane'
 import styles from './Map.module.scss'
 import classNames from 'classnames/bind'
@@ -23,6 +25,9 @@ import { getAllAreas } from '../../services/area'
 import LocationMarker from '../../components/atom/LocationMarker/LocationMarker'
 
 import SearchBar from '../../components/atom/SearchBar/SearchBar'
+import redLocation from '../../assets/img/red-location.png'
+import markerIcon from '../../assets/img/marker-icon.png'
+import markerShadow from '../../assets/img/marker-shadow.png'
 
 const cl = classNames.bind(styles)
 
@@ -57,14 +62,35 @@ function Map() {
     window.location.reload()
   }
 
+  const showPopUp = (longitude, latitude) => {
+    // return (
+    //   <Marker
+    //     position={[latitude, longitude]}
+    //   >
+    //     <Popup>
+    //       Lat: {latitude},
+    //       <br />
+    //       Long: {longitude}
+    //     </Popup>
+    //   </Marker>
+    // )
+  }
+
   const purpleOptions = { color: 'purple' }
 
   const animateRef = useRef(false)
 
   const RedIcon = L.icon({
-    iconUrl: '/red-location.png',
+    iconUrl: redLocation,
     iconAnchor: [21, 43],
   })
+
+  let DefaultIcon = L.icon({
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+  })
+
+  L.Marker.prototype.options.icon = DefaultIcon
 
   return (
     <div>
@@ -89,8 +115,7 @@ function Map() {
             togglePane={togglePane}
             toggleAddPane={toggleAddPane}
           />
-          // <Marker
-          //   key={i}
+
           //   eventHandlers={{
           //     click: (e) => {
           //       toggleAddPane(false)
@@ -101,7 +126,9 @@ function Map() {
           //   position={[x.latitude, x.longitude]}
           // >
           //   <Popup>
-          //     Lat: {x.latitude}, Long: {x.longitude}
+          //     Lat: {x.latitude},
+          //     <br />
+          //     Long: {x.longitude}
           //   </Popup>
           // </Marker>
         ))}
@@ -127,7 +154,13 @@ function Map() {
               <Popup>{area.name}</Popup>
             </GeoJSON>
           ))}
-        <SearchBar />
+        <SearchBar
+          toggleAddPane={toggleAddPane}
+          togglePane={togglePane}
+          setNewTemporaryMarker={setTemporaryMarker}
+          setCurrentStation={setCurrentStation}
+          showPopUp={showPopUp}
+        />
         <Pane
           onEdit={() => handleToggleEditStation()}
           data={currentStation}
@@ -159,7 +192,9 @@ function Map() {
           }
           temporaryMarker={temporaryMarker}
           setNewTemporaryMarker={setTemporaryMarker}
-          onClose={() => toggleAddPane(false)}
+          onClose={() => {
+            toggleAddPane(false)
+          }}
           onGoToPosition={(latlng) => addTemporaryMaker(latlng)}
           animateRef={animateRef}
         />
