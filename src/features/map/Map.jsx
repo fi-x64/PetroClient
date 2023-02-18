@@ -1,7 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
 // import wkx from 'wkx'
-import L from 'leaflet'
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from 'react-leaflet'
+import L, { map } from 'leaflet'
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  GeoJSON,
+  useMap,
+} from 'react-leaflet'
 import Pane from '../../components/molecule/Pane/Pane'
 import styles from './Map.module.scss'
 import classNames from 'classnames/bind'
@@ -13,6 +20,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../../services/auth.service'
 import { getAllAreas } from '../../services/area'
+import LocationMarker from '../../components/atom/LocationMarker/LocationMarker'
 
 const cl = classNames.bind(styles)
 
@@ -37,10 +45,8 @@ function Map() {
   }
 
   const handleToggleEditStation = () => {
-    console.log(currentStation)
     togglePane(false)
     toggleAddPane(true)
-    // setCurrentStation(data)
   }
 
   const handleLogout = () => {
@@ -52,6 +58,11 @@ function Map() {
   const purpleOptions = { color: 'purple' }
 
   const animateRef = useRef(false)
+
+  const RedIcon = L.icon({
+    iconUrl: '/red-location.png',
+    iconAnchor: [21, 43],
+  })
 
   return (
     <div>
@@ -69,24 +80,32 @@ function Map() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {stationQuery?.data?.map((x, i) => (
-          <Marker
+          <LocationMarker
             key={i}
-            eventHandlers={{
-              click: (e) => {
-                toggleAddPane(false)
-                togglePane(true)
-                setCurrentStation(x)
-              },
-            }}
-            position={[x.latitude, x.longitude]}
-          >
-            <Popup>
-              Lat: {x.latitude}, Long: {x.longitude}
-            </Popup>
-          </Marker>
+            point={x}
+            setCurrentStation={setCurrentStation}
+            togglePane={togglePane}
+            toggleAddPane={toggleAddPane}
+          />
+          // <Marker
+          //   key={i}
+          //   eventHandlers={{
+          //     click: (e) => {
+          //       toggleAddPane(false)
+          //       togglePane(true)
+          //       setCurrentStation(x)
+          //     },
+          //   }}
+          //   position={[x.latitude, x.longitude]}
+          // >
+          //   <Popup>
+          //     Lat: {x.latitude}, Long: {x.longitude}
+          //   </Popup>
+          // </Marker>
         ))}
         {temporaryMarker !== null && (
           <Marker
+            icon={RedIcon}
             draggable
             ref={temporaryMarkerRef}
             eventHandlers={{
@@ -98,12 +117,7 @@ function Map() {
               },
             }}
             position={temporaryMarker}
-          >
-            <Popup>
-              Lat: {temporaryMarker[0]}
-              <br /> Long: {temporaryMarker[1]}
-            </Popup>
-          </Marker>
+          ></Marker>
         )}
         {areaQuery.data?.length > 0 &&
           areaQuery.data.map((area) => (

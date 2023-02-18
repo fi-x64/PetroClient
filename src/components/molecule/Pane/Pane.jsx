@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import classNames from 'classnames/bind'
 import styles from './Pane.module.scss'
-import { Drawer, Image, Input } from 'antd'
+import { Carousel, Drawer, Image, Input } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBarcode, faLocationDot } from '@fortawesome/free-solid-svg-icons'
 import { faBuilding } from '@fortawesome/free-regular-svg-icons'
@@ -34,11 +34,17 @@ function Pane({ data, active, onClose, onEdit }) {
     >
       <div className={cl('pane')}>
         <div className={cl('images')}>
-          <Image
-            className={cl('img')}
-            src="https://maps.gstatic.com/tactile/pane/default_geocode-1x.png"
-            fallback="https://maps.gstatic.com/tactile/pane/default_geocode-1x.png"
-          ></Image>
+          <Carousel className={cl('carousel')} dots>
+            {data?.images?.map((img) => (
+              <Image
+                key={img.public_id}
+                preview={false}
+                className={cl('img')}
+                src={img.url}
+                fallback="https://maps.gstatic.com/tactile/pane/default_geocode-1x.png"
+              />
+            ))}
+          </Carousel>
         </div>
         <div className={cl('group')}>
           <div className={cl('name')}>{data?.name}</div>
