@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 // import wkx from 'wkx'
-import L from 'leaflet'
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from 'react-leaflet'
+import L, { map } from 'leaflet'
+import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMapEvent } from 'react-leaflet'
 import Pane from '../../components/molecule/Pane/Pane'
 import styles from './Map.module.scss'
 import classNames from 'classnames/bind'
@@ -50,6 +50,20 @@ function Map() {
     window.location.reload()
   }
 
+  const showPopUp = (longitude, latitude) => {
+    // return (
+    //   <Marker
+    //     position={[latitude, longitude]}
+    //   >
+    //     <Popup>
+    //       Lat: {latitude},
+    //       <br />
+    //       Long: {longitude}
+    //     </Popup>
+    //   </Marker>
+    // )
+  }
+
   const purpleOptions = { color: 'purple' }
 
   const animateRef = useRef(false)
@@ -82,7 +96,9 @@ function Map() {
             position={[x.latitude, x.longitude]}
           >
             <Popup>
-              Lat: {x.latitude}, Long: {x.longitude}
+              Lat: {x.latitude},
+              <br />
+              Long: {x.longitude}
             </Popup>
           </Marker>
         ))}
@@ -112,7 +128,13 @@ function Map() {
               <Popup>{area.name}</Popup>
             </GeoJSON>
           ))}
-        <SearchBar />
+        <SearchBar
+          toggleAddPane={toggleAddPane}
+          togglePane={togglePane}
+          setNewTemporaryMarker={setTemporaryMarker}
+          setCurrentStation={setCurrentStation}
+          showPopUp={showPopUp}
+        />
         <Pane
           onEdit={() => handleToggleEditStation()}
           data={currentStation}
