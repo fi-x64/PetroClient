@@ -59,66 +59,76 @@ function Login() {
         handleSubmit,
       }) => (
         <div className={cl('container')} id="container">
-          <Form onSubmit={handleSubmit} className={cl('form-container')}>
-            <h1 className={cl('title')}>Đăng nhập vào hệ thống</h1>
-            <div className={cl('group')}>
-              <div className={cl('row-group')}>
-                <label className={cl('label')} htmlFor="name">
-                  Email: <RequiredIcon />
-                </label>
-                <FastField
-                  name="email"
-                  id="email"
-                  component={Input}
-                  value={values.email}
-                  status={errors?.email && touched?.email ? 'error' : ''}
-                  className={cl('input')}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                ></FastField>
-                <ErrorMessage
-                  className="field-error"
-                  component="div"
-                  name="email"
-                ></ErrorMessage>
-              </div>
-              <div className={cl('row-group')}>
-                <label className={cl('label')} htmlFor="name">
-                  Password: <RequiredIcon />
-                </label>
-                <FastField
-                  name="password"
-                  id="password"
-                  type="password"
-                  component={Input}
-                  value={values.password}
-                  status={errors?.password && touched?.password ? 'error' : ''}
-                  className={cl('input')}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                ></FastField>
-                <ErrorMessage
-                  className="field-error"
-                  component="div"
-                  name="password"
-                ></ErrorMessage>
-              </div>
-              {message ? (
-                <div
-                  className="error-msg"
-                  role="alert"
-                  style={{ color: 'red', fontSize: 14 }}
-                >
-                  {message}
+          <div className={cl('form-container')}>
+            <Form onSubmit={handleSubmit}>
+              <h1 className={cl('form-title')}>Đăng nhập vào hệ thống</h1>
+              <div className={cl('group')}>
+                <div className={cl('row-group')}>
+                  <label className={cl('label')} htmlFor="name">
+                    Email: <RequiredIcon />
+                  </label>
+                  <FastField
+                    name="email"
+                    id="email"
+                    component={Input}
+                    value={values.email}
+                    status={errors?.email && touched?.email ? 'error' : ''}
+                    className={cl('input')}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  ></FastField>
+                  <ErrorMessage
+                    className="field-error"
+                    component="div"
+                    name="email"
+                  ></ErrorMessage>
                 </div>
-              ) : (
-                ''
-              )}
-              <Button type="primary" onClick={handleSubmit} htmlType="submit">
-                Submit
-              </Button>
-            </div>
-          </Form>
+                <div className={cl('row-group')}>
+                  <label className={cl('label')} htmlFor="name">
+                    Password: <RequiredIcon />
+                  </label>
+                  <FastField
+                    name="password"
+                    id="password"
+                    type="password"
+                    component={Input}
+                    value={values.password}
+                    status={
+                      errors?.password && touched?.password ? 'error' : ''
+                    }
+                    className={cl('input')}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  ></FastField>
+                  <ErrorMessage
+                    className="field-error"
+                    component="div"
+                    name="password"
+                  ></ErrorMessage>
+                </div>
+                {message ? (
+                  <div
+                    className="error-msg"
+                    role="alert"
+                    style={{ color: 'red', fontSize: 14 }}
+                  >
+                    {message}
+                  </div>
+                ) : (
+                  ''
+                )}
+                <div className={cl('footer')}>
+                  <Button
+                    type="primary"
+                    onClick={handleSubmit}
+                    htmlType="submit"
+                  >
+                    Submit
+                  </Button>
+                </div>
+              </div>
+            </Form>
+          </div>
         </div>
       )}
     </Formik>

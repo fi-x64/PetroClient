@@ -22,6 +22,8 @@ import { logout } from '../../services/auth.service'
 import { getAllAreas } from '../../services/area'
 import LocationMarker from '../../components/atom/LocationMarker/LocationMarker'
 
+import SearchBar from '../../components/atom/SearchBar/SearchBar'
+
 const cl = classNames.bind(styles)
 
 function Map() {
@@ -125,6 +127,7 @@ function Map() {
               <Popup>{area.name}</Popup>
             </GeoJSON>
           ))}
+        <SearchBar />
         <Pane
           onEdit={() => handleToggleEditStation()}
           data={currentStation}
