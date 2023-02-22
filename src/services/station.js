@@ -6,6 +6,12 @@ export const getAllStaion = async () => {
     return []
 }
 
+export const getAreaStaion = async (areaId) => {
+    const res = await request.get(`/station/get-area-station/${areaId}`)
+    if (res.data.success) return res.data.data
+    return []
+}
+
 export const getStationById = async ({ stationId }) => {
     const res = await request.get(`/station/${stationId}`)
     if (res.data.success) return res.data.data
