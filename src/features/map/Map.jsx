@@ -28,6 +28,8 @@ import SearchBar from '../../components/atom/SearchBar/SearchBar'
 import redLocation from '../../assets/img/red-location.png'
 import markerIcon from '../../assets/img/marker-icon.png'
 import markerShadow from '../../assets/img/marker-shadow.png'
+import Notify from '../../components/molecule/Notify/Notify'
+import RoutingMachine from '../../components/molecule/Routing/Routing'
 
 const cl = classNames.bind(styles)
 
@@ -41,6 +43,7 @@ function Map() {
   const [showAddPane, toggleAddPane] = useState(false)
   const [currentStation, setCurrentStation] = useState(null)
   const [temporaryMarker, setTemporaryMarker] = useState(null)
+  const [route, setRoute] = useState({ start: null, destination: null })
 
   const stationQuery = useQuery(['stations'], getAllStaion)
   const areaQuery = useQuery(['areas'], getAllAreas)
@@ -92,6 +95,8 @@ function Map() {
 
   L.Marker.prototype.options.icon = DefaultIcon
 
+  console.log(map)
+
   return (
     <div>
       <MapContainer
@@ -114,6 +119,7 @@ function Map() {
             setCurrentStation={setCurrentStation}
             togglePane={togglePane}
             toggleAddPane={toggleAddPane}
+            setRoute={setRoute}
           />
 
           //   eventHandlers={{
@@ -161,6 +167,7 @@ function Map() {
           setCurrentStation={setCurrentStation}
           showPopUp={showPopUp}
         />
+        {/* <RoutingMachine /> */}
         <Pane
           onEdit={() => handleToggleEditStation()}
           data={currentStation}
@@ -184,6 +191,7 @@ function Map() {
           ) : (
             <Button onClick={() => handleLogout()}>Đăng xuất</Button>
           )}
+          <Notify></Notify>
         </div>
         <EditPane
           active={showAddPane}

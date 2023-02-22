@@ -558,6 +558,7 @@ function EditPane({
                             Term date and Inspection date: <RequiredIcon />
                           </label>
                           <RangePicker
+                            defaultValue={[dayjs(), dayjs()]}
                             value={[
                               values.fuelColumns[index].termDate === null
                                 ? null
