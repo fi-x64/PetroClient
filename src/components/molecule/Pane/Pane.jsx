@@ -1,23 +1,47 @@
 import React, { useMemo } from 'react'
+import L from 'leaflet'
 import classNames from 'classnames/bind'
 import styles from './Pane.module.scss'
-import { Drawer, Image, Input } from 'antd'
+import { Carousel, Drawer, Image, Input } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBarcode, faLocationDot } from '@fortawesome/free-solid-svg-icons'
 import { faBuilding } from '@fortawesome/free-regular-svg-icons'
 import InfoItem from '../../atom/InfoItem/InfoItem'
 import FuelColumn from '../../atom/FuelColumn/FuelColumn'
 import ActionButton from '../../atom/ActionButton'
-import { EditOutlined } from '@ant-design/icons'
+import { EditOutlined, SearchOutlined } from '@ant-design/icons'
+import { useMap } from 'react-leaflet'
 const cl = classNames.bind(styles)
 
-function Pane({ data, active, onClose, onEdit }) {
+function Pane({ data, active, onClose, onEdit, setRoute }) {
+  const map = useMap()
+
+  async function handleRouting() {
+    map.locate().on('locationfound', function (e) {
+      // setRoute({
+      //   start: e.latlng,
+      //   destination: L.latLng(data.latitude, data.longitude),
+      // })
+      console.log(e)
+      map.flyTo(e.latlng, map.getZoom())
+      L.Routing.control({
+        waypoints: [e.latlng, L.latLng(data.latitude, data.longitude)],
+      }).addTo(map)
+    })
+  }
+
   const titleDiv = (
     <div className={cl('top-title')}>
       <div className={cl('top-main')}>Thông tin cửa hàng</div>
       <ActionButton
         onClick={() => onEdit()}
         icon={<EditOutlined />}
+        type="approve"
+        showConfirm={false}
+      ></ActionButton>
+      <ActionButton
+        onClick={handleRouting}
+        icon={<SearchOutlined />}
         type="approve"
         showConfirm={false}
       ></ActionButton>
@@ -34,11 +58,17 @@ function Pane({ data, active, onClose, onEdit }) {
     >
       <div className={cl('pane')}>
         <div className={cl('images')}>
-          <Image
-            className={cl('img')}
-            src="https://maps.gstatic.com/tactile/pane/default_geocode-1x.png"
-            fallback="https://maps.gstatic.com/tactile/pane/default_geocode-1x.png"
-          ></Image>
+          <Carousel className={cl('carousel')} dots>
+            {data?.images?.map((img) => (
+              <Image
+                key={img.public_id}
+                preview={false}
+                className={cl('img')}
+                src={img.url}
+                fallback="https://maps.gstatic.com/tactile/pane/default_geocode-1x.png"
+              />
+            ))}
+          </Carousel>
         </div>
         <div className={cl('group')}>
           <div className={cl('name')}>{data?.name}</div>

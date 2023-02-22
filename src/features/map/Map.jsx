@@ -1,7 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
 // import wkx from 'wkx'
 import L, { map } from 'leaflet'
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMapEvent } from 'react-leaflet'
+
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  GeoJSON,
+  useMapEvent,
+} from 'react-leaflet'
+
 import Pane from '../../components/molecule/Pane/Pane'
 import styles from './Map.module.scss'
 import classNames from 'classnames/bind'
@@ -13,7 +22,14 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../../services/auth.service'
 import { getAllAreas } from '../../services/area'
+import LocationMarker from '../../components/atom/LocationMarker/LocationMarker'
+
 import SearchBar from '../../components/atom/SearchBar/SearchBar'
+import redLocation from '../../assets/img/red-location.png'
+import markerIcon from '../../assets/img/marker-icon.png'
+import markerShadow from '../../assets/img/marker-shadow.png'
+import Notify from '../../components/molecule/Notify/Notify'
+import RoutingMachine from '../../components/molecule/Routing/Routing'
 
 const cl = classNames.bind(styles)
 
@@ -28,6 +44,7 @@ function Map() {
   const [showAddPane, toggleAddPane] = useState(false)
   const [currentStation, setCurrentStation] = useState(null)
   const [temporaryMarker, setTemporaryMarker] = useState(null)
+  const [route, setRoute] = useState({ start: null, destination: null })
   var [changeArea, setChangeArea] = useState(null);
 
   const stationQuery = useQuery(['stations'], getAllStaion)
@@ -41,10 +58,8 @@ function Map() {
   }
 
   const handleToggleEditStation = () => {
-    console.log(currentStation)
     togglePane(false)
     toggleAddPane(true)
-    // setCurrentStation(data)
   }
 
   const handleLogout = () => {
@@ -81,6 +96,20 @@ function Map() {
   const purpleOptions = { color: 'purple' }
 
   const animateRef = useRef(false)
+
+  const RedIcon = L.icon({
+    iconUrl: redLocation,
+    iconAnchor: [21, 43],
+  })
+
+  let DefaultIcon = L.icon({
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+  })
+
+  L.Marker.prototype.options.icon = DefaultIcon
+
+  console.log(map)
   return (
     <div>
       <MapContainer
@@ -117,29 +146,37 @@ function Map() {
             </Marker>))
           :
           stationQuery?.data?.map((x, i) => (
-            <Marker
+            <LocationMarker
               key={i}
-              eventHandlers={{
-                click: (e) => {
-                  toggleAddPane(false)
-                  togglePane(true)
-                  setCurrentStation(x)
-                },
-              }}
-              position={[x.latitude, x.longitude]}
-            >
-              <Popup>
-                Lat: {x.latitude},
-                <br />
-                Long: {x.longitude}
-              </Popup>
-            </Marker>
+              point={x}
+              setCurrentStation={setCurrentStation}
+              togglePane={togglePane}
+              toggleAddPane={toggleAddPane}
+              setRoute={setRoute}
+            />
+
+            //   eventHandlers={{
+            //     click: (e) => {
+            //       toggleAddPane(false)
+            //       togglePane(true)
+            //       setCurrentStation(x)
+            //     },
+            //   }}
+            //   position={[x.latitude, x.longitude]}
+            // >
+            //   <Popup>
+            //     Lat: {x.latitude},
+            //     <br />
+            //     Long: {x.longitude}
+            //   </Popup>
+            // </Marker>
           ))
         }
 
 
         {temporaryMarker !== null && (
           <Marker
+            icon={RedIcon}
             draggable
             ref={temporaryMarkerRef}
             eventHandlers={{
@@ -151,12 +188,7 @@ function Map() {
               },
             }}
             position={temporaryMarker}
-          >
-            <Popup>
-              Lat: {temporaryMarker[0]}
-              <br /> Long: {temporaryMarker[1]}
-            </Popup>
-          </Marker>
+          ></Marker>
         )}
         {changeArea ?
           <GeoJSON key={changeArea._id} data={changeArea.geojson} eventHandlers={{}}>
@@ -178,6 +210,7 @@ function Map() {
           areaQuery={areaQuery}
           handleChangeArea={handleChangeArea}
         />
+        {/* <RoutingMachine /> */}
         <Pane
           onEdit={() => handleToggleEditStation()}
           data={currentStation}
@@ -201,6 +234,7 @@ function Map() {
           ) : (
             <Button onClick={() => handleLogout()}>Đăng xuất</Button>
           )}
+          <Notify></Notify>
         </div>
         <EditPane
           active={showAddPane}
@@ -209,7 +243,9 @@ function Map() {
           }
           temporaryMarker={temporaryMarker}
           setNewTemporaryMarker={setTemporaryMarker}
-          onClose={() => toggleAddPane(false)}
+          onClose={() => {
+            toggleAddPane(false)
+          }}
           onGoToPosition={(latlng) => addTemporaryMaker(latlng)}
           animateRef={animateRef}
         />

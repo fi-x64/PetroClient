@@ -27,7 +27,7 @@ import { useMap } from 'react-leaflet'
 import dayjs from 'dayjs'
 import ActionButton from '../../atom/ActionButton'
 import { getFuelTypes } from '../../../services/type'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import RequiredIcon from '../../atom/RequiredIcon/RequiredIcon'
 import {
   addStation,
@@ -45,6 +45,7 @@ const { RangePicker } = DatePicker
 
 const StationSchema = Yup.object().shape({
   name: Yup.string().min(4).max(100).required('Please enter station name!'),
+  areaId: Yup.string(),
   address: Yup.string().required('Please enter address!'),
   taxNumber: Yup.string().required('Please enter tax number!'),
   certNumber: Yup.string().required('Please enter cert number!'),
@@ -92,6 +93,7 @@ function EditPane({
   setNewTemporaryMarker,
   stationId,
 }) {
+  const queryClient = useQueryClient()
   const formikRef = useRef()
   const map = useMap()
   const [loading, setLoading] = useState(false)
@@ -110,7 +112,7 @@ function EditPane({
         }
       }
       if (!insideSomeArea) {
-        formikRef.current.setFieldValue('areaId', area._id)
+        formikRef.current.setFieldValue('areaId', '')
       }
     }
   }, [temporaryMarker])
@@ -164,7 +166,7 @@ function EditPane({
     const res = await operation(submitValues)
     if (res.data.success) {
       message.success(res.data.message)
-      staionQuery.refetch()
+      queryClient.invalidateQueries()
     } else {
       res.data.errors.forEach((err) => setFieldError(err.param, err.msg))
     }
@@ -556,6 +558,7 @@ function EditPane({
                             Term date and Inspection date: <RequiredIcon />
                           </label>
                           <RangePicker
+                            defaultValue={[dayjs(), dayjs()]}
                             value={[
                               values.fuelColumns[index].termDate === null
                                 ? null

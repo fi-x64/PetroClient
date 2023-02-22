@@ -33,3 +33,9 @@ export const updateStation = async (values) => {
     const res = await request.put(`/station/${values._id}`, values)
     return res
 }
+
+export async function getNotifications() {
+    const res = await request.get(`/station/notify`)
+    if (res.data.success) return res.data.data
+    return []
+}

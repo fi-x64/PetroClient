@@ -1,47 +1,52 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import classNames from 'classnames/bind';
-import { Input, List, Avatar, Select } from 'antd';
+import classNames from 'classnames/bind'
+import { Input, List, Avatar, Select } from 'antd'
 
-const { Search } = Input;
+const { Search } = Input
 
-import styles from './SearchBar.module.scss';
-import { handleSearchAPI } from '../../../services/user';
+import styles from './SearchBar.module.scss'
+import { handleSearchAPI } from '../../../services/user'
+import { useMap } from 'react-leaflet'
 
-const cl = classNames.bind(styles);
+const cl = classNames.bind(styles)
 
-function SearchBar({ toggleAddPane, togglePane, setCurrentStation, setNewTemporaryMarker, showPopUp, areaQuery, handleChangeArea }) {
-    const [showResult, setShowResult] = useState(false);
-    const [data, setData] = useState([]);
+function SearchBar({
+    toggleAddPane,
+    togglePane,
+    setCurrentStation,
+    setNewTemporaryMarker,
+    showPopUp, areaQuery, handleChangeArea,
+}) {
+    const map = useMap()
+    const [showResult, setShowResult] = useState(false)
+    const [data, setData] = useState([])
     const [areaId, setAreaId] = useState(null);
     var selectArea = useRef(null);
 
     const handleSearch = async (e) => {
         if (e.target.value) {
-            let res = await handleSearchAPI({ data: e.target.value, areaId: areaId });
+            let res = await handleSearchAPI({ data: e.target.value, areaId: areaId })
             if (res.length > 0) {
-                setShowResult(true);
-                setData(res);
+                setShowResult(true)
+                setData(res)
             } else {
                 setShowResult(false)
                 setData([])
-            };
+            }
         } else {
-            setShowResult(false);
-            setData([]);
+            setShowResult(false)
+            setData([])
         }
     }
 
     const handleClickResult = (item) => {
-        toggleAddPane(false);
-        togglePane(true);
-        setCurrentStation(item);
-        setNewTemporaryMarker([
-            item.latitude,
-            item.longitude
-        ])
-        showPopUp(item.longitude, item.latitude);
-        setShowResult(false);
+        toggleAddPane(false)
+        togglePane(true)
+        setCurrentStation(item)
+        showPopUp(item.longitude, item.latitude)
+        setShowResult(false)
+        map.panTo([item.latitude, item.longitude])
     }
 
     const handleChange = (value) => {
@@ -72,7 +77,9 @@ function SearchBar({ toggleAddPane, togglePane, setCurrentStation, setNewTempora
                 fieldNames={{ label: 'name', value: 'name' }}
                 options={areaQuery.data && [{ name: 'Tất cả' }, ...areaQuery.data]}
             />
-            <Search className={cl('search-bar')} size='middle'
+            <Search
+                className={cl('search-bar')}
+                size="middle"
                 placeholder="Tìm kiếm cây xăng, tìm theo phường, xã,..."
                 onChange={handleSearch}
                 style={{ width: 400 }}
@@ -80,7 +87,7 @@ function SearchBar({ toggleAddPane, togglePane, setCurrentStation, setNewTempora
                 onClick={handleSearch}
             />
 
-            {showResult ?
+            {showResult ? (
                 <List
                     itemLayout="horizontal"
                     dataSource={data}
@@ -89,18 +96,32 @@ function SearchBar({ toggleAddPane, togglePane, setCurrentStation, setNewTempora
                         <List.Item>
                             <List.Item.Meta
                                 avatar={<Avatar src="" />}
-                                title={<a style={{ color: "#3a8ece" }} onClick={() => {
-                                    handleClickResult(item)
-                                }}>{item.name}</a>}
-                                description={<a style={{ color: "#000" }} onClick={() => {
-                                    handleClickResult(item)
-                                }}>{item.address}</a>}
+                                title={
+                                    <a
+                                        style={{ color: '#3a8ece' }}
+                                        onClick={() => {
+                                            handleClickResult(item)
+                                        }}
+                                    >
+                                        {item.name}
+                                    </a>
+                                }
+                                description={
+                                    <a
+                                        style={{ color: '#000' }}
+                                        onClick={() => {
+                                            handleClickResult(item)
+                                        }}
+                                    >
+                                        {item.address}
+                                    </a>
+                                }
                             />
                         </List.Item>
                     )}
                 />
+            )
                 : null}
-
         </div>
     )
 }
