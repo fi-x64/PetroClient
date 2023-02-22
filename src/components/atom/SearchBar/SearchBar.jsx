@@ -1,21 +1,24 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import classNames from 'classnames/bind';
-import { Input, List, Avatar } from 'antd';
+import { Input, List, Avatar, Select } from 'antd';
 
 const { Search } = Input;
 
 import styles from './SearchBar.module.scss';
 import { handleSearchAPI } from '../../../services/user';
+
 const cl = classNames.bind(styles);
 
-function SearchBar({ toggleAddPane, togglePane, setCurrentStation, setNewTemporaryMarker, showPopUp }) {
+function SearchBar({ toggleAddPane, togglePane, setCurrentStation, setNewTemporaryMarker, showPopUp, areaQuery, handleChangeArea }) {
     const [showResult, setShowResult] = useState(false);
     const [data, setData] = useState([]);
+    const [areaId, setAreaId] = useState(null);
+    var selectArea = useRef(null);
 
     const handleSearch = async (e) => {
         if (e.target.value) {
-            let res = await handleSearchAPI({ data: e.target.value });
+            let res = await handleSearchAPI({ data: e.target.value, areaId: areaId });
             if (res.length > 0) {
                 setShowResult(true);
                 setData(res);
@@ -41,8 +44,34 @@ function SearchBar({ toggleAddPane, togglePane, setCurrentStation, setNewTempora
         setShowResult(false);
     }
 
+    const handleChange = (value) => {
+        selectArea.current.blur();
+        if (value != 'Tất cả') {
+            for (let i = 0; i < areaQuery.data.length; i++) {
+                if (value === areaQuery.data[i].name) {
+                    handleChangeArea(areaQuery.data[i]);
+                    setAreaId(areaQuery.data[i]._id);
+                    break;
+                }
+            }
+        }
+        else {
+            handleChangeArea({ name: value });
+            setAreaId(null);
+        };
+    };
+
     return (
         <div className={cl('wrapper')}>
+            <Select
+                ref={selectArea}
+                showSearch
+                defaultValue="Tất cả"
+                style={{ width: 200 }}
+                onChange={handleChange}
+                fieldNames={{ label: 'name', value: 'name' }}
+                options={areaQuery.data && [{ name: 'Tất cả' }, ...areaQuery.data]}
+            />
             <Search className={cl('search-bar')} size='middle'
                 placeholder="Tìm kiếm cây xăng, tìm theo phường, xã,..."
                 onChange={handleSearch}
@@ -50,6 +79,7 @@ function SearchBar({ toggleAddPane, togglePane, setCurrentStation, setNewTempora
                 allowClear={true}
                 onClick={handleSearch}
             />
+
             {showResult ?
                 <List
                     itemLayout="horizontal"
@@ -68,7 +98,8 @@ function SearchBar({ toggleAddPane, togglePane, setCurrentStation, setNewTempora
                             />
                         </List.Item>
                     )}
-                /> : null}
+                />
+                : null}
 
         </div>
     )

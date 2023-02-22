@@ -6,7 +6,7 @@ import Pane from '../../components/molecule/Pane/Pane'
 import styles from './Map.module.scss'
 import classNames from 'classnames/bind'
 import { Button } from 'antd'
-import { getAllStaion } from '../../services/station'
+import { getAllStaion, getAreaStaion } from '../../services/station'
 import { useQuery } from '@tanstack/react-query'
 import EditPane from '../../components/molecule/EditPane/EditPane'
 import { useSelector, useDispatch } from 'react-redux'
@@ -16,6 +16,7 @@ import { getAllAreas } from '../../services/area'
 import SearchBar from '../../components/atom/SearchBar/SearchBar'
 
 const cl = classNames.bind(styles)
+
 
 function Map() {
   let navigate = useNavigate()
@@ -27,9 +28,11 @@ function Map() {
   const [showAddPane, toggleAddPane] = useState(false)
   const [currentStation, setCurrentStation] = useState(null)
   const [temporaryMarker, setTemporaryMarker] = useState(null)
+  var [changeArea, setChangeArea] = useState(null);
 
   const stationQuery = useQuery(['stations'], getAllStaion)
   const areaQuery = useQuery(['areas'], getAllAreas)
+  var stationAreaQuery = useRef(null);
 
   const dispatch = useDispatch()
 
@@ -50,6 +53,17 @@ function Map() {
     window.location.reload()
   }
 
+  const handleChangeArea = async (value) => {
+    if (value.name != 'Tất cả') {
+      stationAreaQuery.current = await getAreaStaion(value._id);
+      setChangeArea(value);
+    }
+    else {
+      setChangeArea(null)
+      stationAreaQuery = null;
+    };
+  }
+
   const showPopUp = (longitude, latitude) => {
     // return (
     //   <Marker
@@ -67,7 +81,6 @@ function Map() {
   const purpleOptions = { color: 'purple' }
 
   const animateRef = useRef(false)
-
   return (
     <div>
       <MapContainer
@@ -83,25 +96,48 @@ function Map() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {stationQuery?.data?.map((x, i) => (
-          <Marker
-            key={i}
-            eventHandlers={{
-              click: (e) => {
-                toggleAddPane(false)
-                togglePane(true)
-                setCurrentStation(x)
-              },
-            }}
-            position={[x.latitude, x.longitude]}
-          >
-            <Popup>
-              Lat: {x.latitude},
-              <br />
-              Long: {x.longitude}
-            </Popup>
-          </Marker>
-        ))}
+        {changeArea && stationAreaQuery.current ?
+          stationAreaQuery.current?.map((x, i) => (
+            <Marker
+              key={i}
+              eventHandlers={{
+                click: (e) => {
+                  toggleAddPane(false)
+                  togglePane(true)
+                  setCurrentStation(x)
+                },
+              }}
+              position={[x.latitude, x.longitude]}
+            >
+              <Popup>
+                Lat: {x.latitude},
+                <br />
+                Long: {x.longitude}
+              </Popup>
+            </Marker>))
+          :
+          stationQuery?.data?.map((x, i) => (
+            <Marker
+              key={i}
+              eventHandlers={{
+                click: (e) => {
+                  toggleAddPane(false)
+                  togglePane(true)
+                  setCurrentStation(x)
+                },
+              }}
+              position={[x.latitude, x.longitude]}
+            >
+              <Popup>
+                Lat: {x.latitude},
+                <br />
+                Long: {x.longitude}
+              </Popup>
+            </Marker>
+          ))
+        }
+
+
         {temporaryMarker !== null && (
           <Marker
             draggable
@@ -122,7 +158,12 @@ function Map() {
             </Popup>
           </Marker>
         )}
-        {areaQuery.data?.length > 0 &&
+        {changeArea ?
+          <GeoJSON key={changeArea._id} data={changeArea.geojson} eventHandlers={{}}>
+            <Popup>{changeArea.name}</Popup>
+          </GeoJSON>
+          :
+          areaQuery.data?.length > 0 &&
           areaQuery.data.map((area) => (
             <GeoJSON key={area._id} data={area.geojson} eventHandlers={{}}>
               <Popup>{area.name}</Popup>
@@ -134,6 +175,8 @@ function Map() {
           setNewTemporaryMarker={setTemporaryMarker}
           setCurrentStation={setCurrentStation}
           showPopUp={showPopUp}
+          areaQuery={areaQuery}
+          handleChangeArea={handleChangeArea}
         />
         <Pane
           onEdit={() => handleToggleEditStation()}
