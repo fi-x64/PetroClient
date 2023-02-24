@@ -13,38 +13,33 @@ import { EditOutlined, SearchOutlined } from '@ant-design/icons'
 import { useMap } from 'react-leaflet'
 const cl = classNames.bind(styles)
 
-function Pane({ data, active, onClose, onEdit, setRoute }) {
+function Pane({ data, active, onClose, onEdit, setWaypoints }) {
   const map = useMap()
 
   async function handleRouting() {
     map.locate().on('locationfound', function (e) {
-      // setRoute({
-      //   start: e.latlng,
-      //   destination: L.latLng(data.latitude, data.longitude),
-      // })
-      console.log(e)
       map.flyTo(e.latlng, map.getZoom())
-      L.Routing.control({
-        waypoints: [e.latlng, L.latLng(data.latitude, data.longitude)],
-      }).addTo(map)
+      setWaypoints([e.latlng, L.latLng(data.latitude, data.longitude)])
     })
   }
 
   const titleDiv = (
     <div className={cl('top-title')}>
       <div className={cl('top-main')}>Thông tin cửa hàng</div>
-      <ActionButton
-        onClick={() => onEdit()}
-        icon={<EditOutlined />}
-        type="approve"
-        showConfirm={false}
-      ></ActionButton>
-      <ActionButton
-        onClick={handleRouting}
-        icon={<SearchOutlined />}
-        type="approve"
-        showConfirm={false}
-      ></ActionButton>
+      <div className={cl('actions')}>
+        <ActionButton
+          onClick={() => onEdit()}
+          icon={<EditOutlined />}
+          type="approve"
+          showConfirm={false}
+        ></ActionButton>
+        <ActionButton
+          onClick={handleRouting}
+          icon={<SearchOutlined />}
+          type="approve"
+          showConfirm={false}
+        ></ActionButton>
+      </div>
     </div>
   )
 

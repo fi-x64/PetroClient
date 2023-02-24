@@ -1,17 +1,23 @@
 import L from 'leaflet'
-import { createControlComponent } from '@react-leaflet/core'
 import 'leaflet-routing-machine'
+import { useMap } from 'react-leaflet'
+import { useEffect } from 'react'
 
-const createRoutineMachineLayer = ({ start, destination }) => {
-  if (!start || !destination) return null
+function Routing({ waypoints }) {
+  const map = useMap()
 
-  const instance = L.Routing.control({
-    waypoints: [start, destination],
-  })
+  useEffect(() => {
+    if (!map || waypoints.length === 0) return
 
-  return instance
+    const routingControl = L.Routing.control({
+      waypoints: waypoints,
+      routeWhileDragging: true,
+    }).addTo(map)
+
+    return () => map.removeControl(routingControl)
+  }, [map, waypoints])
+
+  return null
 }
 
-const RoutingMachine = createControlComponent(createRoutineMachineLayer)
-
-export default RoutingMachine
+export default Routing

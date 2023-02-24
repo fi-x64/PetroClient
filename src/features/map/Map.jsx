@@ -29,7 +29,7 @@ import redLocation from '../../assets/img/red-location.png'
 import markerIcon from '../../assets/img/marker-icon.png'
 import markerShadow from '../../assets/img/marker-shadow.png'
 import Notify from '../../components/molecule/Notify/Notify'
-import RoutingMachine from '../../components/molecule/Routing/Routing'
+import Routing from '../../components/molecule/Routing'
 
 const cl = classNames.bind(styles)
 
@@ -43,7 +43,7 @@ function Map() {
   const [showAddPane, toggleAddPane] = useState(false)
   const [currentStation, setCurrentStation] = useState(null)
   const [temporaryMarker, setTemporaryMarker] = useState(null)
-  const [route, setRoute] = useState({ start: null, destination: null })
+  const [waypoints, setWaypoints] = useState([])
 
   const stationQuery = useQuery(['stations'], getAllStaion)
   const areaQuery = useQuery(['areas'], getAllAreas)
@@ -79,8 +79,6 @@ function Map() {
     // )
   }
 
-  const purpleOptions = { color: 'purple' }
-
   const animateRef = useRef(false)
 
   const RedIcon = L.icon({
@@ -94,8 +92,6 @@ function Map() {
   })
 
   L.Marker.prototype.options.icon = DefaultIcon
-
-  console.log(map)
 
   return (
     <div>
@@ -119,24 +115,7 @@ function Map() {
             setCurrentStation={setCurrentStation}
             togglePane={togglePane}
             toggleAddPane={toggleAddPane}
-            setRoute={setRoute}
           />
-
-          //   eventHandlers={{
-          //     click: (e) => {
-          //       toggleAddPane(false)
-          //       togglePane(true)
-          //       setCurrentStation(x)
-          //     },
-          //   }}
-          //   position={[x.latitude, x.longitude]}
-          // >
-          //   <Popup>
-          //     Lat: {x.latitude},
-          //     <br />
-          //     Long: {x.longitude}
-          //   </Popup>
-          // </Marker>
         ))}
         {temporaryMarker !== null && (
           <Marker
@@ -167,12 +146,13 @@ function Map() {
           setCurrentStation={setCurrentStation}
           showPopUp={showPopUp}
         />
-        {/* <RoutingMachine /> */}
+        <Routing waypoints={waypoints} />
         <Pane
           onEdit={() => handleToggleEditStation()}
           data={currentStation}
           active={showPane}
           onClose={() => togglePane(false)}
+          setWaypoints={setWaypoints}
         ></Pane>
         <div className={cl('control-btn')}>
           <Button
