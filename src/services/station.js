@@ -20,8 +20,7 @@ export const getStationById = async ({ stationId }) => {
 
 export const deleteImage = async ({ stationId, imagePublicId }) => {
     const res = await request.patch(`/station/${stationId}`, { imagePublicId })
-    if (res.data.success) return res.data.data
-    return []
+    return res
 }
 
 export const addStation = async (values) => {

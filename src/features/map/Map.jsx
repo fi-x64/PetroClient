@@ -67,6 +67,11 @@ function Map() {
     window.location.reload()
   }
 
+  const handleGoToStation = (station) => {
+    setCurrentStation(station)
+    togglePane(true)
+  }
+
   const handleChangeArea = async (value) => {
     if (value.name != 'Tất cả') {
       stationAreaQuery.current = await getAreaStaion(value._id)
@@ -120,15 +125,6 @@ function Map() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {/* {stationQuery?.data?.map((x, i) => (
-          <LocationMarker
-            key={i}
-            point={x}
-            setCurrentStation={setCurrentStation}
-            togglePane={togglePane}
-            toggleAddPane={toggleAddPane}
-          />
-        ))} */}
         {changeArea && stationAreaQuery.current
           ? stationAreaQuery.current?.map((x, i) => (
               <Marker
@@ -156,7 +152,7 @@ function Map() {
                 setCurrentStation={setCurrentStation}
                 togglePane={togglePane}
                 toggleAddPane={toggleAddPane}
-                setRoute={setRoute}
+                setWaypoints={setWaypoints}
               />
             ))}
 
@@ -226,7 +222,7 @@ function Map() {
           ) : (
             <Button onClick={() => handleLogout()}>Đăng xuất</Button>
           )}
-          <Notify></Notify>
+          <Notify handleGoToStation={handleGoToStation}></Notify>
         </div>
         <EditPane
           active={showAddPane}
@@ -234,9 +230,10 @@ function Map() {
             showAddPane && currentStation?._id ? currentStation._id : undefined
           }
           temporaryMarker={temporaryMarker}
-          setNewTemporaryMarker={setTemporaryMarker}
+          setTemporaryMarker={setTemporaryMarker}
           onClose={() => {
             toggleAddPane(false)
+            setTemporaryMarker(null)
           }}
           onGoToPosition={(latlng) => addTemporaryMaker(latlng)}
           animateRef={animateRef}

@@ -90,7 +90,7 @@ function EditPane({
   onGoToPosition,
   animateRef,
   temporaryMarker,
-  setNewTemporaryMarker,
+  setTemporaryMarker,
   stationId,
 }) {
   const queryClient = useQueryClient()
@@ -99,7 +99,7 @@ function EditPane({
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (formikRef.current) {
+    if (formikRef.current && temporaryMarker !== null) {
       formikRef.current.setFieldValue('latitude', temporaryMarker[0] || 0)
       formikRef.current.setFieldValue('longitude', temporaryMarker[1] || 0)
 
@@ -128,8 +128,9 @@ function EditPane({
   const areaQuery = useQuery(['areas'], getAllAreas)
 
   const deleteImageMutation = useMutation(deleteImage, {
-    onSuccess: (res) => {
-      console.log(res)
+    onSuccess: async (res) => {
+      if (res.data.success) message.success(res.data.message)
+      await queryClient.refetchQueries(['station'])
     },
   })
 
@@ -465,7 +466,7 @@ function EditPane({
                 <Button
                   onClick={(e) => {
                     const currentCenterLatlng = map.getCenter()
-                    setNewTemporaryMarker([
+                    setTemporaryMarker([
                       currentCenterLatlng.lat,
                       currentCenterLatlng.lng,
                     ])

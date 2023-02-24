@@ -11,7 +11,11 @@ function Routing({ waypoints }) {
 
     const routingControl = L.Routing.control({
       waypoints: waypoints,
-      routeWhileDragging: true,
+      routeWhileDragging: false,
+      collapsible: true,
+      lineOptions: {
+        styles: [{ color: 'black', opacity: 1, weight: 3 }],
+      },
     }).addTo(map)
 
     return () => map.removeControl(routingControl)

@@ -9,6 +9,11 @@
     justify-content: space-between;
 }
 
+.img {
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+}
+
 .actions {
     display: flex;
     align-items: center;
